@@ -1,0 +1,100 @@
+---
+title: "Homework 0"
+output: html_document
+author: 
+- Changxin Wan
+---
+
+### Task 1 - Implement fizzbuzz
+
+#### Write up
+
+Implementation of fizzbuzz algorithm with a vectorized way.
+
+#### Function
+
+```{r fizzbuzz}
+fizzbuzz = function(input) {
+  if (!is.numeric(input)){
+    stop("Error: Input is not a numeric vector!!!")
+  }
+  if (any(input < 0 )){
+    stop("Error: Input contains number < 0!!!")
+  }
+  if (any(is.infinite(input))){
+    stop("Error: Input contains infinite!!!")
+  }
+  if (any(is.na(input))){
+    stop("Error: Input contains missing values!!!")
+  }
+  if (is.double(input)){
+    for (i in input) {
+      if (i %% 1 != 0){
+        stop(paste0("Error: ", i, " is not a valid number in input!!!"))
+      }
+    }
+    input <- as.integer(input)
+  }
+  out_vec <- as.character(input)
+  out_three <- !as.logical(input %% 3.0)
+  out_five <- !as.logical(input %% 5.0)
+  out_both <- out_three & out_five
+  out_vec[out_three] <- "Fizz"
+  out_vec[out_five] <- "Buzz"
+  out_vec[out_both] <- "FizzBuzz"
+  return(out_vec)
+}
+```
+
+
+### Task 2 - Testing
+
+Test if the function output expected output when we input a right vector.i
+
+#### Good Inputs
+
+```{r good_inputs, error = TRUE}
+stopifnot( fizzbuzz(1)  == "1"       )
+stopifnot( fizzbuzz(3)  == "Fizz"    )
+stopifnot( fizzbuzz(5)  == "Buzz"    )
+stopifnot( fizzbuzz(15) == "FizzBuzz")
+
+stopifnot(all( fizzbuzz(1:5) == c("1", "2", "Fizz", "4", "Buzz") ))
+
+### additional test for vectors that do not contain any Fizz or Buzz
+stopifnot(all( fizzbuzz(c(1, 2, 4, 6, 7)) == as.character(c(1, 2, 4, 6, 7))))
+
+stopifnot(all( fizzbuzz(9:15) == c("Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz") ))
+stopifnot(all( fizzbuzz(15:9) == c("FizzBuzz", "14", "13", "Fizz", "11", "Buzz", "Fizz") ))
+```
+
+
+#### Bad Inputs
+This is the part to test if the function can throw errors when input a wrong vector
+```{r throws_error}
+# Testing helper function, returns TRUE if expr throws an error FALSE otherwise.
+# To know if the function can throw errors when input the wrong vector
+throws_error = function(expr) {
+  inherits(try(expr, silent = TRUE), "try-error")
+}
+```
+
+```{r bad_inputs, error = TRUE}
+stopifnot(throws_error( fizzbuzz(-1) ))
+stopifnot(throws_error( fizzbuzz(-3) ))
+stopifnot(throws_error( fizzbuzz(-5) ))
+
+stopifnot(throws_error( fizzbuzz(TRUE) ))
+stopifnot(throws_error( fizzbuzz(FALSE) ))
+
+stopifnot(throws_error( fizzbuzz(Inf) ))
+stopifnot(throws_error( fizzbuzz(-Inf) ))
+stopifnot(throws_error( fizzbuzz(NaN) ))
+stopifnot(throws_error( fizzbuzz(NA) ))
+
+stopifnot(throws_error( fizzbuzz("A") ))
+stopifnot(throws_error( fizzbuzz(1.5) ))
+stopifnot(throws_error( fizzbuzz(1i) ))
+stopifnot(throws_error( fizzbuzz(4i) ))
+```
+

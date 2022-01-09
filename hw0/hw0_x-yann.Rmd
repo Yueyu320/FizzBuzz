@@ -1,0 +1,158 @@
+---
+title: "Homework 0"
+author:
+- Emrys Yan (SID: 1099173)
+output:
+  pdf_document: default
+  html_document: default
+---
+
+### Task 1 - Implement fizzbuzz
+
+#### Write up
+
+I approached this problem from the bigger picture to smaller details, by which I meant I wrote the code for the most crucial task-use "fizz","buzz", and "fizzbuzz" to replace certain numbers, and after that I added codes that would give required outputs at appropriate places. 
+
+At the first sight, I noticed that "fizzbuzz" has the most demanding requirements (multiples of 15), so I wanted to test input elements for that requirement first. Then I moved onto testing for the multiples of 3 and 5. I did consider the probablity that I will be asked to repeat the same tasks with different numbers, so I wanted to have codes containing 3,5,and 15 as few as possible. It is a fact that 3*5=15 is easy to calculate, and testing for %%3 and %%5, %%3, %%5 will require more work when revising it comparing to testing for %%15, %%3, %%5. So I decided to test input elements with mod3, mod5, and mod15, instead of mod3, mod5, mod3 and mod5, for it is actually longer codes.
+
+Then my stream of thoughts went to all the "erorr" senarios. I believe it is less work for the program if I test for all the invalid inputs first, so they won't proceed to the next tests. And it is even more efficient if I put the tests that would filter the most invalid inputs at first, so my program won't be wasting time doing evitable work. Therefore, I put all the if loops for invalid situations before the tests for multiples of 3 and 5, for which I followed the HW requirements closely. Specifically, I test for numeric numbers first, so non-numeric numbers won't proceed to the next if loop. Then I test for complexity, none-negativity, followed by finitity, in this way I can save my program much time.
+
+Good inputs are those that are valid, and that will not result in erorrs. They are finte, non-negative, numeric numbers in a vector. In summary, they qualifies all reqiurements for the "FizzBuzz" game and will not cause an erorr. On the other hand, bad inputs are those that will result in an erorr,such as negative numbers, fractions, floating numbers, complex numebrs, English letters or words,etc. They will not pass my first four tests in my program. They are bad inputs because they won't satisfy the game rules.
+
+
+#### Function
+
+```{r fizzbuzz}
+fizzbuzz = function(input) {
+  output<-c(rep(0,length(input)))
+  for (val in input){
+    if(!is.numeric(input[val])){
+      stop("Erorr. All input elements must be numerical numbers.")}
+    if(is.complex(x)){
+      stop("Erorr. All input elements must be real numbers.")}
+    if(as.integer(val)<0){        
+      stop("Erorr. All input elements must be none-negative.")}
+    if(val%%1 !=0){
+      stop("Erorr. All input elements must be finite.")}
+    if (as.integer(val)%%15==0){     # as.integer? is it truncating?
+      output[val]="FizzBuzz"}
+      else if(as.integer(val)%%3==0){
+      output[val]="Fizz"
+    } else if(as.integer(val)%%5==0){
+      output[val]="Buzz"
+    } else {
+      output[val]=val
+    }
+         
+  }
+    return(output)
+}
+
+
+  throws_error = function(expr) {
+  inherits(try(expr, silent = TRUE), "try-error")
+}
+          
+```
+
+
+
+
+### Task 2 - Testing
+
+GOOD INPUTS:
+
+fizzbuzz(1)
+[1] 1
+
+fizzbuzz(2)
+[1] 0 2
+
+fizzbuzz(3) 
+[1] "0"    NA     "Fizz"
+
+fizzbuzz(5)
+[1] "0"    NA     NA     NA     "Buzz"
+
+fizzbuzz(15)
+ [1] "0"        NA         NA         NA         NA         NA         NA         NA         NA         NA         NA        
+[12] NA         NA         NA         "FizzBuzz"
+
+fizzbuzz(1:5)
+[1] "1"    "2"    "Fizz" "4"    "Buzz"
+
+
+
+BAD INPUTS: 
+
+fizzbuzz("A")
+Error in fizzbuzz("A") : 
+  Erorr. All input elements must be numerical numbers.
+
+fizzbuzz(FALSE)
+Error in fizzbuzz(FALSE) : 
+  Erorr. All input elements must be numerical numbers.
+
+fizzbuzz(2.3)
+Error in fizzbuzz(2.3) : Erorr. All input elements must be finite.
+
+fizzbuzz(-3)
+Error in fizzbuzz(-3) : Erorr. All input elements must be none-negative.
+
+fizzbuzz(-3.2)
+Error in fizzbuzz(-3.2) : 
+  Erorr. All input elements must be none-negative.   
+
+fizzbuzz(Inf)
+Error in if (as.integer(val) < 0) { : 
+  missing value where TRUE/FALSE needed
+In addition: Warning message:
+In fizzbuzz(Inf) : NAs introduced by coercion to integer range
+
+fizzbuzz(2i)
+Error in input[val] : invalid subscript type 'complex'
+
+
+
+#### Good Inputs
+
+```{r good_inputs, error = TRUE}
+stopifnot( fizzbuzz(1)  == "1"       )
+stopifnot( fizzbuzz(3)  == "Fizz"    )
+stopifnot( fizzbuzz(5)  == "Buzz"    )
+stopifnot( fizzbuzz(15) == "FizzBuzz")
+
+stopifnot(all( fizzbuzz(1:5) == c("1", "2", "Fizz", "4", "Buzz") ))
+
+stopifnot(all( fizzbuzz(9:15) == c("Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz") ))
+stopifnot(all( fizzbuzz(15:9) == c("FizzBuzz", "14", "13", "Fizz", "11", "Buzz", "Fizz") ))
+```
+
+
+#### Bad Inputs
+
+```{r throws_error}
+# Testing helper function, returns TRUE if expr throws an error FALSE otherwise.
+throws_error = function(expr) {
+  inherits(try(expr, silent = TRUE), "try-error")
+}
+```
+
+```{r bad_inputs, error = TRUE}
+stopifnot(throws_error( fizzbuzz(-1) ))
+stopifnot(throws_error( fizzbuzz(-3) ))
+stopifnot(throws_error( fizzbuzz(-5) ))
+
+stopifnot(throws_error( fizzbuzz(TRUE) ))
+stopifnot(throws_error( fizzbuzz(FALSE) ))
+
+stopifnot(throws_error( fizzbuzz(Inf) ))
+stopifnot(throws_error( fizzbuzz(-Inf) ))
+stopifnot(throws_error( fizzbuzz(NaN) ))
+
+stopifnot(throws_error( fizzbuzz("A") ))
+stopifnot(throws_error( fizzbuzz(1.5) ))
+stopifnot(throws_error( fizzbuzz(1i) ))
+stopifnot(throws_error( fizzbuzz(4i) ))
+```
+

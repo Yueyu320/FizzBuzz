@@ -1,0 +1,107 @@
+---
+title: "Homework 0"
+author: "Camilla Yu"
+output:
+  html_document: default
+---
+
+### Task 1 - Implement fizzbuzz
+
+#### Write up
+
+The project creates a function called fizzbuzz and it is used for testing the multiples of 3 or 5, or 3 and 5. 
+
+At first, we need to restrict the type of input, which is numeric, so if input is not the numeric type, the function need to be stopped and print the error message. Then, the length of input should be finite, and if there are infinite numbers in the input, another error message should be showed.
+
+Finally, in the for loop, we need to check each of the number in the input to be positive, finite and an integer. If one of the condition fails, an error message should be printed. In the for loop, for those integers as the type of double, we need to transfer those numbers into integer type for the future implementation. 
+
+Now, we could test the multiples: if the reminder of the number is 0 when dividing it by 3, the number is the multiple of 3, then assign it the character "Fizz"; if the reminder of the number is 0 when dividing it by 5, the number is the multiple of 5, then assign it the character "Buzz"; if the reminder of the number is 0 when dividing it by 3 and 5, the number is the multiple of both 3 and 5, assign it the character "FizzBuzz". To avoid potential errors, I also create an output vector to store all the output values, and if there is no action for a specific number in the input, it should just stay the same. 
+
+#### Function
+
+```{r fizzbuzz}
+fizzbuzz = function(input) {
+  output <- vector()
+  if (!is.numeric(input)) {
+    stop("Input must to be a numeric vector")
+  } 
+  if (is.infinite(length(input))) {
+    stop("Input values must be infite")
+  } 
+  for (i in seq_along(input)) {
+    if (!is.finite(input[i])) {
+      stop("All inbput values must be finite")
+    }
+    if (input[i] < 0) {
+      stop("All input values must be >=0")
+    }
+    if (input[i] != as.integer(input[i])) {
+      stop("All input values must be like 5 or 5.0, not 5.1")
+    }
+    if (is.double(input[i])) {
+      output[i] <- as.integer(input[i])
+    }
+    if (input[i] %% 3 == 0 && input[i] %% 5 == 0) {
+      output[i] <- "FizzBuzz"
+    } 
+    else if (input[i] %% 3 == 0) {
+      output[i] <- "Fizz"
+    } 
+    else if (input[i] %% 5 == 0) {
+      output[i] <- "Buzz"
+    } 
+    else {
+      output[i] <- input[i]
+    }
+  } 
+  return(output)
+}
+```
+
+### Task 2 - Testing
+
+Test the function using different vectors to see if there is anything wrong for the fizzbuzz function. 
+
+#### Good Inputs
+
+```{r good_inputs, error = TRUE}
+stopifnot( fizzbuzz(1)  == "1"       )
+stopifnot( fizzbuzz(3)  == "Fizz"    )
+stopifnot( fizzbuzz(5)  == "Buzz"    )
+stopifnot( fizzbuzz(15) == "FizzBuzz")
+stopifnot( fizzbuzz(7.0) == "7")
+stopifnot( fizzbuzz(9.0) == "Fizz")
+
+stopifnot(all( fizzbuzz(1:5) == c("1", "2", "Fizz", "4", "Buzz")))
+stopifnot(all( fizzbuzz(9:15) == c("Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz") ))
+stopifnot(all( fizzbuzz(15:9) == c("FizzBuzz", "14", "13", "Fizz", "11", "Buzz", "Fizz") ))
+stopifnot(all( fizzbuzz(7:10) == c("7", "8", "Fizz", "Buzz")))
+stopifnot(all( fizzbuzz(7.0:10.0) == c("7", "8", "Fizz", "Buzz")))
+```
+
+#### Bad Inputs
+
+```{r throws_error}
+throws_error = function(expr) {
+  inherits(try(expr, silent = TRUE), "try-error")
+}
+```
+
+```{r bad_inputs, error = TRUE}
+stopifnot(throws_error( fizzbuzz(-1) ))
+stopifnot(throws_error( fizzbuzz(-3) ))
+stopifnot(throws_error( fizzbuzz(-5) ))
+
+stopifnot(throws_error( fizzbuzz(TRUE) ))
+stopifnot(throws_error( fizzbuzz(FALSE) ))
+
+stopifnot(throws_error( fizzbuzz(Inf) ))
+stopifnot(throws_error( fizzbuzz(-Inf) ))
+stopifnot(throws_error( fizzbuzz(NaN) ))
+
+stopifnot(throws_error( fizzbuzz("A") ))
+stopifnot(throws_error( fizzbuzz(1.5) ))
+stopifnot(throws_error( fizzbuzz(1i) ))
+stopifnot(throws_error( fizzbuzz(4i) ))
+stopifnot(throws_error(fizzbuzz(7.9)))
+```

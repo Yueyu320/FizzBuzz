@@ -1,0 +1,135 @@
+---
+title: "FizzBuzz"
+output: html_document
+---
+
+### Task 1 - Re-Implementation
+
+We pick it up from where we left off from HW0, by which we test the type of inputs, sort them into categories by the nature and type of the inputs, and return appropriate outcomes in a "FizzBuzz" game or an informative error.
+
+In general, we only accept those inputs with all elements as integers or doubles, and play the "FizzBuzz" game on them, giving all the other inputs an error and stop running.
+
+We separate inputs into three main categories: integers, doubles, and all the others as default. We deal with integers and doubles further for more detailed information, and leave all the those not satisfying these requirements into the "others" category and halt the program with an informative "invalid input" error.
+
+For integers, we return an error for any inputs with negative elements. Then we substitute those multiples of 3, multiples of 5, and multiples of 3 and 5 (so, 15) in the non-negative integer, numeric input with "Fizz","Buzz", and "FizzBuzz", respectively, with logical tests. And return a vector with substituted words and other elements as characters at their original places.
+
+For doubles, we stop the program for inputs containing infinite numbers or NA/NaN. We halt the program for any invalid doubles such as fractions and decimals. If the all input doubles are valid doubles, we transfer them into integers and input them into the fizzbuzz function, which will return the result of the function fizzbuzz.integer.
+
+```{r}
+fizzbuzz = function(input) {
+  UseMethod("fizzbuzz")
+}
+
+fizzbuzz.default = function(input) {
+  stop("Error: Class ", class(input), " is not supported by fizzbuzz! \n")
+}
+
+fizzbuzz.integer = function(input) {
+  if (any(input < 0)) {
+    stop("Error: Input contains negative numbers! \n")
+  }
+  out_vec <- as.character(input)
+  out_three <- !as.logical(input %% 3)
+  out_five <- !as.logical(input %% 5)
+  out_both <- (!as.logical(input %% 3)) & (!as.logical(input %% 5))
+  out_vec[out_three] <- "Fizz"
+  out_vec[out_five] <- "Buzz"
+  out_vec[out_both] <- "FizzBuzz"
+  return(out_vec)
+}
+
+fizzbuzz.double = function(input) {
+  if (any(!is.finite(input))) {
+    stop("Error: Input contains infinite or NA/NaN! \n")
+  }
+  if (any(input != as.integer(input))) {
+    stop("Error: Input contains invalid doubles! \n")
+  }
+  return ( fizzbuzz( as.integer(input) ))
+}
+```
+
+### Task 2 - Testing
+
+#### Good Inputs
+
+Use stopifnot function to test different types of vectors (test cases/good inputs) including double-type integers, integers and some vectors that do not contain the multiples of 3 or 5. 
+
+```{r good_inputs, error = TRUE}
+stopifnot( fizzbuzz(1)  == "1"       )
+stopifnot( fizzbuzz(3)  == "Fizz"    )
+stopifnot( fizzbuzz(5)  == "Buzz"    )
+stopifnot( fizzbuzz(15) == "FizzBuzz")
+
+### additional test for integers as double type 
+stopifnot( fizzbuzz(7.0) == "7")
+stopifnot( fizzbuzz(9.0) == "Fizz")
+stopifnot( fizzbuzz(15.0) == "FizzBuzz")
+stopifnot( fizzbuzz(10.0) == "Buzz")
+
+stopifnot(all( fizzbuzz(1:5) == c("1", "2", "Fizz", "4", "Buzz") ))
+
+stopifnot(all( fizzbuzz(9:15) == c("Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz") ))
+stopifnot(all( fizzbuzz(15:9) == c("FizzBuzz", "14", "13", "Fizz", "11", "Buzz", "Fizz") ))
+
+### additional test for vectors that do not contain any Fizz or Buzz
+stopifnot(all( fizzbuzz( c(1, 2, 4, 7)) == as.character( c(1, 2, 4, 7) )))
+stopifnot(all( fizzbuzz( c(1.0, 2.0, 4.0, 7.0)) == as.character( c(1, 2, 4, 7) )))
+
+### additional test for vectors that include both integers and double-type integers
+stopifnot(all( fizzbuzz( c(1.0, 3.0, 4, 5)) == c("1", "Fizz", "4", "Buzz") ))
+stopifnot(all( fizzbuzz( c(1:5, 7,8)) == c("1","2","Fizz","4","Buzz","7","8")))
+```
+
+
+
+#### Bad Inputs
+
+Use stopifnot and throws_error function to test bad inputs (test cases) including negative integers/doubles, logical input, NA, Inf/-Inf, vectors including characters, decimals, complex numbers, and double-type vectors including integers, NA, Inf and complex numbers. 
+
+```{r throws_error}
+# Testing helper function, returns TRUE if expr throws an error FALSE otherwise.
+# Use throws_error function to test for bad inputs
+
+throws_error = function(expr) {
+  inherits(try(expr, silent = TRUE), "try-error")
+}
+```
+
+```{r bad_inputs, error = TRUE}
+stopifnot(throws_error( fizzbuzz(-1) ))
+stopifnot(throws_error( fizzbuzz(-3) ))
+stopifnot(throws_error( fizzbuzz(-5) ))
+## additional test for negative double-type integers
+stopifnot(throws_error( fizzbuzz(-5.0) ))
+
+stopifnot(throws_error( fizzbuzz(TRUE) ))
+stopifnot(throws_error( fizzbuzz(FALSE) ))
+stopifnot(throws_error( fizzbuzz(T) ))
+stopifnot(throws_error( fizzbuzz(F) ))
+
+stopifnot(throws_error( fizzbuzz(Inf) ))
+stopifnot(throws_error( fizzbuzz(-Inf) ))
+stopifnot(throws_error( fizzbuzz(NaN) ))
+## additional test for NA 
+stopifnot(throws_error( fizzbuzz(NA) ))
+
+stopifnot(throws_error( fizzbuzz("A") ))
+## additional test for vector of characters
+stopifnot(throws_error( fizzbuzz("A", "B", "C") ))
+stopifnot(throws_error( fizzbuzz(1.5) ))
+stopifnot(throws_error( fizzbuzz(1i) ))
+stopifnot(throws_error( fizzbuzz(4i) ))
+
+## additional test for vector of URLs as characters
+stopifnot(throws_error( fizzbuzz("https://www.youtube.com/") ))
+
+### add additional test for vectors contains NA / Inf
+stopifnot(throws_error( fizzbuzz( c(1:6, NA, "A", 1i)) ))
+stopifnot(throws_error( fizzbuzz( c(1:6, NA, Inf)) ))
+stopifnot(throws_error( fizzbuzz( c(1:6, Inf)) ))
+stopifnot(throws_error( fizzbuzz( c(1:6, "A", "B")) ))
+stopifnot(throws_error( fizzbuzz( c(1:6, NA)) ))
+stopifnot(throws_error( fizzbuzz( c(1:6, 1i)) ))
+```
+
